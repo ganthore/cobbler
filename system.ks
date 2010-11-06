@@ -67,7 +67,8 @@ install
 
 		#set $allDisks = $disks.split( ',' )
 
-		part /boot --fstype="ext3" --size=200 --ondisk=$allDisks[0]
+        #set $bootPartitionSize = $getVar('$bootPartitionSize', '200')
+		part /boot --fstype="ext3" --size=$bootPartitionSize --ondisk=$allDisks[0]
 
 		#set $pv = 1
 		#set allPv = ''
@@ -165,3 +166,4 @@ ln -s /home/root/ssh /root/.ssh
 $yum_config_stanza
 
 $kickstart_done
+%end
