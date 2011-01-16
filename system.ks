@@ -42,25 +42,22 @@ timezone  America/New_York
 install
 # Disk partitioning information
 
-#set $promptForDiskInfo = $getVar('$manualDiskLayout','')
-#unless $promptForDiskInfo
+#if $getVar('$manualDiskLayout','') == ''
 	#set $partitionedDisks = $getVar('$prePartitionedDisks', '')
-	#if ( $partitionedDisks != '' )
+	#if $partitionedDisks != ''
 		clearpart --none --drives=$partitionedDisks
 	#end if
 
-	#set $partitions = $getVar('$prePartitions', '')
-	#if ( $partitions != '' )
+	#if $getVar('$prePartitions', '') != ''
 		#set $allPartitions = $partitions.split( ',' )
 		#for $aPartition in $allPartitions
 			part None --onpart=$aPartition --noformat
 		#end for
 	#end if
 
-	#set $disks = $getVar('$disks', '')
-	#if ( $disks != '' )
+	#if $getVar('$disks', '') != ''
 		# #set $clearParts = $getVar('$clearParts', '')
-		# #if ( $clearParts != '' )
+		# #if $clearParts != ''
 			# clearpart --all --drives=$clearParts
 		# #end if
 			clearpart --all --drives=$disks
@@ -82,12 +79,11 @@ install
 		logvol swap --fstype="swap" --name=LogVol01 --vgname=VolGroup00 --recommended
 		logvol / --fstype="ext3" --name=LogVol00 --vgname=VolGroup00 --size=1024 --grow
 	#else
-		#SNIPPET::partition_select
 		part swap --fstype="swap" --recommended
 		part / --fstype="ext3" --grow --size=1024
 		part /boot --fstype ext3 --size 200 --recommended
 	#end if
-#end unless
+#end if
 
 %pre
 $kickstart_start
@@ -99,10 +95,9 @@ $kickstart_start
 #for $aPackage in $allPackages
 $aPackage
 #end for
-#set $enableVirtualization = $getVar('$disableVirtualization','')
-#unless $enableVirtualization
+#if $getVar('$disableVirtualization','') == ''
 @virtualization
-#end unless
+#end if
 
 %post
 grep HOSTNAME /etc/sysconfig/network
@@ -131,18 +126,16 @@ fi
 
 sed -i -e "s/\(^hosts:\).*/\1      files dns/" /etc/nsswitch.conf
 
-#set $graphical = $getVar('$isGraphical', '0') 
-#if $graphical == "1"
+#if $getVar('$isGraphical', '') != ''  
 sed -i -e "s/\(^id:\).*/\15:initdefault:/" /etc/inittab
 #end if
 
-#set $disableInitScripts = $getVar('$enableInitScripts','')
-#unless $disableInitScripts
+#if $getVar('$enableInitScripts','') == ''
 for aScript in /etc/init.d/*
 do
         /sbin/chkconfig `basename $aScript` off
 done
-#end unless
+#end if
 
 yum install -y puppet koan
 yum update -y puppet koan
@@ -153,11 +146,10 @@ yum update -y puppet koan
 /sbin/chkconfig --add sshd
 /sbin/chkconfig sshd on
 
-#set $enablePuppet = $getVar('$disablePuppet','')
-#unless $enablePuppet
+#if $getVar('$disablePuppet','') == ''
 /sbin/chkconfig --add puppet
 /sbin/chkconfig puppet on
-#end unless
+#end if
 
 ln -s /home/root/ssh /root/.ssh
 
