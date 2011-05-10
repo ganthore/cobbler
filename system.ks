@@ -95,9 +95,6 @@ $kickstart_start
 #for $aPackage in $allPackages
 $aPackage
 #end for
-#if $getVar('$disableVirtualization','') == ''
-@virtualization
-#end if
 
 %post
 grep HOSTNAME /etc/sysconfig/network
@@ -137,8 +134,7 @@ do
 done
 #end if
 
-yum install -y puppet koan
-yum update -y puppet koan
+#  $yum_config_stanza
 
 /sbin/chkconfig --add network
 /sbin/chkconfig network on
@@ -146,16 +142,12 @@ yum update -y puppet koan
 /sbin/chkconfig --add sshd
 /sbin/chkconfig sshd on
 
-#if $getVar('$disablePuppet','') == ''
 /sbin/chkconfig --add puppet
 /sbin/chkconfig puppet on
-#end if
 
 ln -s /home/root/ssh /root/.ssh
 
 /bin/dbus-uuidgen > /var/lib/dbus/machine-id
-
-$yum_config_stanza
 
 $kickstart_done
 %end
