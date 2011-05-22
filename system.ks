@@ -146,7 +146,9 @@ done
 /sbin/chkconfig puppet on
 
 #if $getVar('$puppet-env', '') != ''  
-puppetd --environment=$getVar('$puppet-env')
+echo " " >> /etc/puppet.conf
+echo "[agent]" >> /etc/puppet.conf
+echo "    environment = $getVar('$puppet-env')" >> /etc/puppet.conf
 #end if
 
 ln -s /home/root/ssh /root/.ssh
