@@ -145,6 +145,10 @@ done
 /sbin/chkconfig --add puppet
 /sbin/chkconfig puppet on
 
+#if $getVar('$puppet-env', '') != ''  
+puppetd --environment=$getVar('$puppet-env')
+#end if
+
 ln -s /home/root/ssh /root/.ssh
 
 /bin/dbus-uuidgen > /var/lib/dbus/machine-id
