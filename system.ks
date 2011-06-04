@@ -124,7 +124,17 @@ fi
 sed -i -e "s/\(^hosts:\).*/\1      files dns/" /etc/nsswitch.conf
 
 #if $getVar('$isGraphical', '') != ''  
-sed -i -e "s/\(^id:\).*/\15:initdefault:/" /etc/inittab
+if [ -e /lib/systemd/system ] then
+	rm -rf /lib/systemd/system/default.target
+	ln -s /lib/systemd/system/graphical.target /lib/systemd/system/default.target
+else
+	sed -i -e "s/\(^id:\).*/\15:initdefault:/" /etc/inittab
+fi
+#else
+if [ -e /lib/systemd/system ] then
+	rm -rf /lib/systemd/system/default.target
+	ln -s /lib/systemd/system/multi-user.target /lib/systemd/system/default.target
+fi
 #end if
 
 #if $getVar('$enableInitScripts','') == ''
