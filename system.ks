@@ -128,8 +128,11 @@ sed -i -e "s/\(^hosts:\).*/\1      files dns/" /etc/nsswitch.conf
 #if $getVar('$isGraphical', '') != ''  
 if [ -d /lib/systemd/system ]
 then
-	rm -rf /lib/systemd/system/default.target
-	ln -s /lib/systemd/system/graphical.target /lib/systemd/system/default.target
+    rm -rf /etc/systemd/system/default.target
+    ln -s /lib/systemd/system/graphical.target /etc/systemd/system/default.target
+
+#	rm -rf /lib/systemd/system/default.target
+#	ln -s /lib/systemd/system/graphical.target /lib/systemd/system/default.target
 else
 	sed -i -e "s/\(^id:\).*/\15:initdefault:/" /etc/inittab
 fi
