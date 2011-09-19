@@ -166,5 +166,10 @@ ln -s /home/root/ssh /root/.ssh
 
 /bin/dbus-uuidgen > /var/lib/dbus/machine-id
 
+#set $maxLoops = $getVar('$maxLoop', '')
+#if $maxLoops != ''
+    echo "options loop max_loop=$maxLoops" >> /etc/modprobe.conf
+#end if
+
 $kickstart_done
 %end
