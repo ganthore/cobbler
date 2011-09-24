@@ -48,19 +48,21 @@ install
 		clearpart --none --drives=$partitionedDisks
 	#end if
 
-	#if $getVar('$prePartitions', '') != ''
+	#set $partitions = $getVar('$prePartitions', '')
+	#if $partitions != ''
 		#set $allPartitions = $partitions.split( ',' )
 		#for $aPartition in $allPartitions
 			part None --onpart=$aPartition --noformat
 		#end for
 	#end if
 
+	#set $clearParts = $getVar('$clearParts', '')
+	#if $clearParts != ''
+		clearpart --all --drives=$clearParts
+	#end if
+
 	#if $getVar('$disks', '') != ''
-		# #set $clearParts = $getVar('$clearParts', '')
-		# #if $clearParts != ''
-			# clearpart --all --drives=$clearParts
-		# #end if
-			clearpart --all --drives=$disks
+	#		clearpart --all --drives=$disks
 
 		#set $allDisks = $disks.split( ',' )
 
