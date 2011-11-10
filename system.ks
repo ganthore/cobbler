@@ -98,6 +98,7 @@ $kickstart_start
 #for $aPackage in $allPackages
 $aPackage
 #end for
+%end
 
 %post
 
