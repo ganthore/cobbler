@@ -42,50 +42,35 @@ timezone  America/New_York
 install
 # Disk partitioning information
 
-#if $getVar('$manualDiskLayout','') == ''
-	#set $partitionedDisks = $getVar('$prePartitionedDisks', '')
-	#if $partitionedDisks != ''
-		clearpart --none --drives=$partitionedDisks
-	#end if
+#set allPv = ''
 
-	#set $partitions = $getVar('$prePartitions', '')
-	#if $partitions != ''
-		#set $allPartitions = $partitions.split( ',' )
-		#for $aPartition in $allPartitions
-			part None --onpart=$aPartition --noformat
-		#end for
-	#end if
+#if $getVar('$disks', '') != ''
+	clearpart --all --drives=$disks
 
-	#set $clearParts = $getVar('$clearParts', '')
-	#if $clearParts != ''
-		clearpart --all --drives=$clearParts
-	#end if
+	#set $allDisks = $disks.split( ',' )
 
-	#if $getVar('$disks', '') != ''
-	#		clearpart --all --drives=$disks
 
-		#set $allDisks = $disks.split( ',' )
+	#set $pv = 1
 
-        #set $bootPartitionSize = $getVar('$bootPartitionSize', '200')
-		part /boot --fstype="ext3" --size=$bootPartitionSize --ondisk=$allDisks[0]
-
-		#set $pv = 1
-		#set allPv = ''
-
-		#for $aDisk in $allDisks
-			part pv.$pv --size=1024 --grow --ondisk=$aDisk
-			#set $allPv = $allPv + ' pv.' + str($pv)
-			#set $pv += 1
-		#end for
-		volgroup VolGroup00 --pesize=32768 $allPv
-		logvol swap --fstype="swap" --name=LogVol01 --vgname=VolGroup00 --recommended
-		logvol / --fstype="ext3" --name=LogVol00 --vgname=VolGroup00 --size=1024 --grow
-	#else
-		part swap --fstype="swap" --recommended
-		part / --fstype="ext3" --grow --size=1024
-		part /boot --fstype ext3 --size 200 --recommended
-	#end if
+	#for $aDisk in $allDisks
+		part pv.$pv --grow --ondisk=$aDisk
+		#set $allPv = $allPv + ' pv.' + str($pv)
+		#set $pv += 1
+	#end for
+#else
+	clearpart --all
+	part pv.1 --grow
+	#set $allPv = "pv.1"
 #end if
+
+#if $getVar('$os_version', '') == 'fedora16'
+part biosboot --fstype=biosboot --size=1
+#end if
+part /boot --recommended
+
+volgroup VolGroup00 $allPv
+logvol swap --fstype="swap" --name=LogVol01 --vgname=VolGroup00 --recommended
+logvol / --fstype="ext3" --name=LogVol00 --vgname=VolGroup00 --size=1024 --recommended --grow
 
 %pre
 $kickstart_start
@@ -98,7 +83,9 @@ $kickstart_start
 #for $aPackage in $allPackages
 $aPackage
 #end for
+#if $getVar('$os_version', '') == 'fedora16'
 %end
+#end if
 
 %post
 
