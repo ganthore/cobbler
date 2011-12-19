@@ -59,14 +59,14 @@ install
 	#end for
 #else
 	clearpart --all
-	part pv.1 --grow
+	part pv.1 --grow --size=1024
 	#set $allPv = "pv.1"
 #end if
 
 #if $getVar('$os_version', '') == 'fedora16'
 part biosboot --fstype=biosboot --size=1
 #end if
-part /boot --recommended
+part /boot --fstype="ext3" --recommended
 
 volgroup VolGroup00 $allPv
 logvol swap --fstype="swap" --name=LogVol01 --vgname=VolGroup00 --recommended
