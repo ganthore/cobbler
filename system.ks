@@ -1,54 +1,78 @@
 #platform=x86, AMD64, or Intel EM64T
 # System authorization information
-auth  --useshadow  --enablemd5  --enablenis --nisdomain=flossware.com
+#if $getVar('$auth', '') != ''
+    auth $auth.replace(',', ' ')
+#end if
+
 # System bootloader configuration
 bootloader --location=mbr
+
+#if $getVar('$zerombr', '') != ''
 # Clear the Master Boot Record
 zerombr
-# Partition clearing information
-clearpart --all --initlabel
+#end if
+
 # Use text mode install
 text
+
 # Firewall configuration
-firewall --disabled
+firewall --$getVar('$firewall', 'disabled')
+
 # Run the Setup Agent on first boot
-firstboot --disable
-# interactive install
-#interactive
+firstboot --$getVar('$firstboot', 'disable')
+
 # System keyboard
-keyboard us
+keyboard $getVar('$keyboard', 'us')
+
 # System language
-lang en_US
+lang $getVar('$lang', 'en_US')
+
 # Installation logging level
-logging --level=debug
+logging --level=$getVar('$loggingLevel', 'debug')
+
 # Use network installation
 url --url=$tree
+
 # If any cobbler repo definitions were referenced in the kickstart profile, include them here.
 $yum_repo_stanza
+
 # Network information
-network --hostname=$hostname --bootproto=dhcp --device=eth0
+network --hostname=$hostname --bootproto=$getVar('networkBootProto', 'dhcp') --device=$getVar('networkDevice', 'eth0')
+
 # Reboot after installation
 reboot
+
 # Root password
-rootpw --iscrypted $1$YF9VN0yn$jhieNwdEA/KLtjPa.wW/p0
+#if $getVar('$encryptedRootPassword', '') != ''
+rootpw --iscrypted $encryptedRootPassword
+#else
+rootpw --plaintext $getVar('$rootPassword', 'cobbler')
+#end if
 
 # SELinux configuration
-selinux --disabled
+selinux --$getVar('$selinux', 'disabled')
+
 # Do not configure the X Window System
 skipx
+
 # System timezone
-timezone  America/New_York
+timezone  $getVar('$timezone', 'America/New_York')
+
 # Install OS instead of upgrade
 install
+
 # Disk partitioning information
 
 #set allPv = ''
+
+#if $getVar('$partitionedDisks', '') != ''
+clearpart --none --drives=$partitionedDisks
+#end if
 
 #if $getVar('$disks', '') != ''
 	clearpart --all --drives=$disks
 
 	#set $allDisks = $disks.split( ',' )
-
 
 	#set $pv = 1
 
@@ -63,14 +87,23 @@ install
 	#set $allPv = "pv.1"
 #end if
 
+#if $getVar('$prePartitions', '') != ''
+    #set $allPartitions = $prePartitions.split( ',' )
+    #for $aPartition in $allPartitions
+        #set $thePartition = $aPartition + '=None'
+        #set $onePartition = $thePartition.split('=')
+        part $onePartition[1] --onpart=$onePartition[0] --noformat
+    #end for
+#end if
+
 #if $getVar('$os_version', '') == 'fedora16'
 part biosboot --fstype=biosboot --size=1
 #end if
-part /boot --fstype="ext3" --recommended
+part /boot --fstype="$getVar('$bootPartition', 'ext3')" --recommended --size=250
 
 volgroup VolGroup00 $allPv
 logvol swap --fstype="swap" --name=LogVol01 --vgname=VolGroup00 --recommended
-logvol / --fstype="ext3" --name=LogVol00 --vgname=VolGroup00 --size=1024 --recommended --grow
+logvol / --fstype="$getVar('$rootPartition', 'ext3')" --name=LogVol00 --vgname=VolGroup00 --size=1024 --recommended --grow
 
 %pre
 $kickstart_start
@@ -78,12 +111,11 @@ $kickstart_start
 
 %packages
 @core
-#set $packages = $getVar('$packages', '')
-#set $allPackages = $packages.split(',')
-#for $aPackage in $allPackages
-$aPackage
-#end for
-#if $getVar('$os_version', '') == 'fedora16'
+
+#if $getVar('$packages', '') != ''
+$packages.replace(',', '\\n')
+#end if
+#if $getVar('$os_version', '').startswith('fedora') and $os_version.replace('fedora', '') > 15
 %end
 #end if
 
