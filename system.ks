@@ -1,7 +1,17 @@
+#if $getVar('$os_version', '') != ''
+    #if $os_version.startswith('fedora')
+        #set $operatingSystem = 'fedora'
+    #else if $os_version.startswith('rhel')
+        #set $operatingSystem = 'rhel'
+    #end if
+#end if
+
+#set $operatingSystemVersion = $os_version.replace($operatingSystem, '')
+
 #platform=x86, AMD64, or Intel EM64T
 # System authorization information
 #if $getVar('$auth', '') != ''
-    auth $auth.replace(',', ' ')
+auth $auth.replace(',', ' ')
 #end if
 
 # System bootloader configuration
@@ -96,14 +106,14 @@ clearpart --none --drives=$partitionedDisks
     #end for
 #end if
 
-#if $getVar('$os_version', '') == 'fedora16'
-part biosboot --fstype=biosboot --size=1
+#if $operatingSystem == 'fedora' and $operatingSystemVersion > 15
+part biosboot --fstype=biosboot --size=$getVar('biosbootPartitionSize', '1')
 #end if
-part /boot --fstype="$getVar('$bootPartition', 'ext3')" --recommended --size=250
+part /boot --fstype="$getVar('$bootPartition', 'ext3')" --recommended --size=$getVar('bootPartitionSize', '250')
 
 volgroup VolGroup00 $allPv
 logvol swap --fstype="swap" --name=LogVol01 --vgname=VolGroup00 --recommended
-logvol / --fstype="$getVar('$rootPartition', 'ext3')" --name=LogVol00 --vgname=VolGroup00 --size=1024 --recommended --grow
+logvol / --fstype="$getVar('$rootPartition', 'ext3')" --name=LogVol00 --vgname=VolGroup00 --size=$getVar('rootPartitionSize', '1024') --recommended --grow
 
 %pre
 $kickstart_start
@@ -115,7 +125,7 @@ $kickstart_start
 #if $getVar('$packages', '') != ''
 $packages.replace(',', '\\n')
 #end if
-#if $getVar('$os_version', '').startswith('fedora') and $os_version.replace('fedora', '') > 15
+#if $operatingSystem == 'fedora' and $operatingSystemVersion > 15
 %end
 #end if
 
