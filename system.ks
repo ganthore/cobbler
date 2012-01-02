@@ -89,7 +89,7 @@ install
 # Disk partitioning information
 
 #if $getVar('$clearpart', '') != ''
-clearpart $clearpart
+clearpart $clearpart.replace('&&', ' ')
 #end if
 
 #if $operatingSystem == 'fedora' and $operatingSystemVersion > 15
