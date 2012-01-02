@@ -1,3 +1,6 @@
+## Simplifying the computation of operating system name
+## and version...
+
 #if $getVar('$os_version', '') != ''
     #if $os_version.startswith('fedora')
         #set $operatingSystem = 'fedora'
@@ -6,7 +9,7 @@
     #end if
 #end if
 
-#set $operatingSystemVersion = $os_version.replace($operatingSystem, '')
+#set $operatingSystemVersion = int($os_version.replace($operatingSystem, '0'))
 
 #platform=x86, AMD64, or Intel EM64T
 # System authorization information
@@ -16,6 +19,8 @@ auth $auth.replace(',', ' ')
 
 # System bootloader configuration
 bootloader --location=mbr
+
+## Should we clearout the master boot record?
 
 #if $getVar('$zerombr', '') != ''
 # Clear the Master Boot Record
@@ -31,11 +36,17 @@ firewall --$getVar('$firewall', 'disabled')
 # Run the Setup Agent on first boot
 firstboot --$getVar('$firstboot', 'disable')
 
+## By default, we will use the US keyboard type...
+
 # System keyboard
 keyboard $getVar('$keyboard', 'us')
 
+## By default we will use the US as a system language
+
 # System language
 lang $getVar('$lang', 'en_US')
+
+## By default we will use a debug log level...
 
 # Installation logging level
 logging --level=$getVar('$loggingLevel', 'debug')
@@ -45,6 +56,8 @@ url --url=$tree
 
 # If any cobbler repo definitions were referenced in the kickstart profile, include them here.
 $yum_repo_stanza
+
+## By default use DHCP and eth0...
 
 # Network information
 network --hostname=$hostname --bootproto=$getVar('networkBootProto', 'dhcp') --device=$getVar('networkDevice', 'eth0')
@@ -65,6 +78,8 @@ selinux --$getVar('$selinux', 'disabled')
 # Do not configure the X Window System
 skipx
 
+## By default, use NY as the time zone...
+
 # System timezone
 timezone  $getVar('$timezone', 'America/New_York')
 
@@ -73,43 +88,34 @@ install
 
 # Disk partitioning information
 
-#set allPv = ''
-
-#if $getVar('$partitionedDisks', '') != ''
-clearpart --none --drives=$partitionedDisks
-#end if
-
-#if $getVar('$disks', '') != ''
-	clearpart --all --drives=$disks
-
-	#set $allDisks = $disks.split( ',' )
-
-	#set $pv = 1
-
-	#for $aDisk in $allDisks
-		part pv.$pv --grow --ondisk=$aDisk
-		#set $allPv = $allPv + ' pv.' + str($pv)
-		#set $pv += 1
-	#end for
-#else
-	clearpart --all
-	part pv.1 --grow --size=1024
-	#set $allPv = "pv.1"
-#end if
-
-#if $getVar('$prePartitions', '') != ''
-    #set $allPartitions = $prePartitions.split( ',' )
-    #for $aPartition in $allPartitions
-        #set $thePartition = $aPartition + '=None'
-        #set $onePartition = $thePartition.split('=')
-        part $onePartition[1] --onpart=$onePartition[0] --noformat
-    #end for
+#if $getVar('$clearpart', '') != ''
+clearpart $clearpart
 #end if
 
 #if $operatingSystem == 'fedora' and $operatingSystemVersion > 15
 part biosboot --fstype=biosboot --size=$getVar('biosbootPartitionSize', '1')
 #end if
 part /boot --fstype="$getVar('$bootPartition', 'ext3')" --recommended --size=$getVar('bootPartitionSize', '250')
+#if $getVar('$diskPartitions', '') 
+part $diskPartitions.replace(',', '\\npart ').replace('&&',' ')
+#end if
+
+#set allPv = ''
+
+#if $getVar('$disks', '') != ''
+	#set $allDisks = $disks.split( ',' )
+
+	#set $pv = 1
+
+	#for $aDisk in $allDisks
+part pv.$pv --grow --ondisk=$aDisk
+		#set $allPv = $allPv + ' pv.' + str($pv)
+		#set $pv += 1
+	#end for
+#else
+part pv.1 --grow --size=1024
+	#set $allPv = "pv.1"
+#end if
 
 volgroup VolGroup00 $allPv
 logvol swap --fstype="swap" --name=LogVol01 --vgname=VolGroup00 --recommended
