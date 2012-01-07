@@ -22,7 +22,7 @@ bootloader --location=mbr
 
 ## Should we clearout the master boot record?
 
-#if $getVar('$zerombr', '') != ''
+#if $getVar('$noZerombr', '') == ''
 # Clear the Master Boot Record
 zerombr
 #end if
@@ -86,10 +86,16 @@ timezone  $getVar('$timezone', 'America/New_York')
 # Install OS instead of upgrade
 install
 
+#if $getVar('$ignoredisk', '') != ''
+ignoredisk $ignoredisk
+#end if
+
 # Disk partitioning information
 
 #if $getVar('$clearpart', '') != ''
 clearpart $clearpart.replace('&&', ' ')
+#else
+clearpart --linux
 #end if
 
 #if $operatingSystem == 'fedora' and $operatingSystemVersion > 15
@@ -100,31 +106,30 @@ part /boot --fstype="$getVar('$bootPartition', 'ext3')" --recommended --size=$ge
 part $diskPartitions.replace(',', '\\npart ').replace('&&',' ')
 #end if
 
-#set allPv = ''
+## Only dealing with LVM if requested!
 
-#if $getVar('$disks', '') != ''
-	#set $allDisks = $disks.split( ',' )
+#if $getVar('$lvmDisks', '') != ''
+    #set allPv = ''
+	#set $allLvmDisks = $lvmDisks.split( ',' )
 
 	#set $pv = 1
 
-	#for $aDisk in $allDisks
-part pv.$pv --grow --ondisk=$aDisk
+	#for $anLvmDisk in $allLvmDisks
+part pv.$pv --grow --ondisk=$anLvmDisk
 		#set $allPv = $allPv + ' pv.' + str($pv)
 		#set $pv += 1
 	#end for
-#else
-part pv.1 --grow --size=1024
-	#set $allPv = "pv.1"
-#end if
 
 volgroup VolGroup00 $allPv
-logvol swap --fstype="swap" --name=LogVol01 --vgname=VolGroup00 --recommended
-logvol / --fstype="$getVar('$rootPartition', 'ext3')" --name=LogVol00 --vgname=VolGroup00 --size=$getVar('rootPartitionSize', '1024') --recommended --grow
+logvol swap --fstype="swap" --name=lv_swap --vgname=VolGroup00 --recommended
+logvol / --fstype="$getVar('$rootPartition', 'ext3')" --name=lv_root --vgname=VolGroup00 --size=$getVar('rootPartitionSize', '1024') --recommended --grow
+#else
+part swap --fstype="swap" --recommended
+part / --fstype="$getVar('$rootPartition', 'ext3')" --size=$getVar('rootPartitionSize', '1024') --recommended --grow
+#end if
 
 %pre
 $kickstart_start
-%end
-
 %packages
 @core
 
@@ -204,9 +209,8 @@ ln -s /home/root/ssh /root/.ssh
 
 /bin/dbus-uuidgen > /var/lib/dbus/machine-id
 
-#set $maxLoops = $getVar('$maxLoop', '')
-#if $maxLoops != ''
-    echo "options loop max_loop=$maxLoops" >> /etc/modprobe.conf
+#if $getVar('$maxLoop', '') != ''
+    echo "options loop max_loop=$maxLoop" >> /etc/modprobe.conf
 #end if
 
 $kickstart_done
