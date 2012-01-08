@@ -11,6 +11,9 @@
 
 #set $operatingSystemVersion = int($os_version.replace($operatingSystem, '0'))
 
+#set $networkDevice = $getVar('$networkDevice', 'eth0')
+
+
 #platform=x86, AMD64, or Intel EM64T
 # System authorization information
 #if $getVar('$auth', '') != ''
@@ -60,7 +63,7 @@ $yum_repo_stanza
 ## By default use DHCP and eth0...
 
 # Network information
-network --hostname=$hostname --bootproto=$getVar('networkBootProto', 'dhcp') --device=$getVar('networkDevice', 'eth0')
+network --hostname=$hostname --bootproto=$getVar('$networkBootProto', 'dhcp') --device=$networkDevice
 
 # Reboot after installation
 reboot
@@ -158,13 +161,45 @@ else
     echo "NISDOMAIN=flossware.com" >> /etc/sysconfig/network
 fi
 
-grep DHCP_HOSTNAME /etc/sysconfig/network-scripts/ifcfg-eth0
+grep DHCP_HOSTNAME /etc/sysconfig/network-scripts/ifcfg-$networkDevice
 if [ $? == 0 ] 
 then
     sed -i -e "s/\(DHCP_HOSTNAME=\).*/\1$hostname/" /etc/sysconfig/network-scripts/ifcfg-eth0
 else
     echo "DHCP_HOSTNAME=$hostname" >> /etc/sysconfig/network-scripts/ifcfg-eth0
 fi
+
+#set $subnet = $getVar('subnet_'+$networkDevice, '')
+#if $subnet != ''
+grep NETMASK /etc/sysconfig/network-scripts/ifcfg-$networkDevice
+if [ $? == 0 ] 
+then
+    sed -i -e "s/\(NETMASK=\).*/\1$subnet/" /etc/sysconfig/network-scripts/ifcfg-$networkDevice
+else
+    echo "NETMASK=$subnet" >> /etc/sysconfig/network-scripts/ifcfg-$networkDevice
+fi
+#end if
+
+#set $ipAddress = $getVar('ip_address_'+$networkDevice, '')
+#if $ipAddress != ''
+grep IPADDR /etc/sysconfig/network-scripts/ifcfg-$networkDevice
+if [ $? == 0 ] 
+then
+    sed -i -e "s/\(IPADDR=\).*/\1$ipAddress/" /etc/sysconfig/network-scripts/ifcfg-$networkDevice
+else
+    echo "IPADDR=$ipAddress" >> /etc/sysconfig/network-scripts/ifcfg-$networkDevice
+fi
+#end if
+
+#if $getVar('$gateway', '') != ''
+grep GATEWAY /etc/sysconfig/network-scripts/ifcfg-$networkDevice
+if [ $? == 0 ] 
+then
+    sed -i -e "s/\(GATEWAY=\).*/\1$gateway/" /etc/sysconfig/network-scripts/ifcfg-$networkDevice
+else
+    echo "GATEWAY=$gateway" >> /etc/sysconfig/network-scripts/ifcfg-$networkDevice
+fi
+#end if
 
 sed -i -e "s/\(^hosts:\).*/\1      files dns/" /etc/nsswitch.conf
 
