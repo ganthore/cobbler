@@ -11,6 +11,8 @@
 
 #set $operatingSystemVersion = int($os_version.replace($operatingSystem, '0'))
 
+## Networking stuff...
+
 #set $networkDevice = $getVar('$networkDevice', 'eth0')
 
 
@@ -63,7 +65,11 @@ $yum_repo_stanza
 ## By default use DHCP and eth0...
 
 # Network information
-network --hostname=$hostname --bootproto=$getVar('$networkBootProto', 'dhcp') --device=$networkDevice
+#if $getVar('$network', '') != ''
+network --$network.replace('&&', ' --')
+#else
+network --hostname=$hostname --bootproto=dhcp --device=$networkDevice
+#end if
 
 # Reboot after installation
 reboot
@@ -96,7 +102,7 @@ ignoredisk $ignoredisk
 # Disk partitioning information
 
 #if $getVar('$clearpart', '') != ''
-clearpart $clearpart.replace('&&', ' ')
+clearpart --$clearpart.replace('&&', ' --')
 #else
 clearpart --linux
 #end if
@@ -145,63 +151,31 @@ $packages.replace(',', '\\n')
 
 %post
 
-grep HOSTNAME /etc/sysconfig/network
-if [ $? == 0 ]
-then
-    sed -i -e "s/\(HOSTNAME=\).*/\1$hostname/" /etc/sysconfig/network
-else
-    echo "HOSTNAME=$hostname" >> /etc/sysconfig/network
-fi
+# grep HOSTNAME /etc/sysconfig/network
+# if [ $? == 0 ]
+# then
+#     sed -i -e "s/\(HOSTNAME=\).*/\1$hostname/" /etc/sysconfig/network
+# else
+#     echo "HOSTNAME=$hostname" >> /etc/sysconfig/network
+# fi
 
-grep NISDOMAIN /etc/sysconfig/network
-if [ $? == 0 ]
-then
-    sed -i -e "s/\(NISDOMAIN=\).*/\1flossware.com/" /etc/sysconfig/network
-else
-    echo "NISDOMAIN=flossware.com" >> /etc/sysconfig/network
-fi
+# grep NISDOMAIN /etc/sysconfig/network
+# if [ $? == 0 ]
+# then
+#     sed -i -e "s/\(NISDOMAIN=\).*/\1flossware.com/" /etc/sysconfig/network
+# else
+#     echo "NISDOMAIN=flossware.com" >> /etc/sysconfig/network
+# fi
 
-grep DHCP_HOSTNAME /etc/sysconfig/network-scripts/ifcfg-$networkDevice
-if [ $? == 0 ] 
-then
-    sed -i -e "s/\(DHCP_HOSTNAME=\).*/\1$hostname/" /etc/sysconfig/network-scripts/ifcfg-eth0
-else
-    echo "DHCP_HOSTNAME=$hostname" >> /etc/sysconfig/network-scripts/ifcfg-eth0
-fi
+# grep DHCP_HOSTNAME /etc/sysconfig/network-scripts/ifcfg-$networkDevice
+# if [ $? == 0 ] 
+# then
+#     sed -i -e "s/\(DHCP_HOSTNAME=\).*/\1$hostname/" /etc/sysconfig/network-scripts/ifcfg-eth0
+# else
+#     echo "DHCP_HOSTNAME=$hostname" >> /etc/sysconfig/network-scripts/ifcfg-eth0
+# fi
 
-#set $subnet = $getVar('subnet_'+$networkDevice, '')
-#if $subnet != ''
-grep NETMASK /etc/sysconfig/network-scripts/ifcfg-$networkDevice
-if [ $? == 0 ] 
-then
-    sed -i -e "s/\(NETMASK=\).*/\1$subnet/" /etc/sysconfig/network-scripts/ifcfg-$networkDevice
-else
-    echo "NETMASK=$subnet" >> /etc/sysconfig/network-scripts/ifcfg-$networkDevice
-fi
-#end if
-
-#set $ipAddress = $getVar('ip_address_'+$networkDevice, '')
-#if $ipAddress != ''
-grep IPADDR /etc/sysconfig/network-scripts/ifcfg-$networkDevice
-if [ $? == 0 ] 
-then
-    sed -i -e "s/\(IPADDR=\).*/\1$ipAddress/" /etc/sysconfig/network-scripts/ifcfg-$networkDevice
-else
-    echo "IPADDR=$ipAddress" >> /etc/sysconfig/network-scripts/ifcfg-$networkDevice
-fi
-#end if
-
-#if $getVar('$gateway', '') != ''
-grep GATEWAY /etc/sysconfig/network-scripts/ifcfg-$networkDevice
-if [ $? == 0 ] 
-then
-    sed -i -e "s/\(GATEWAY=\).*/\1$gateway/" /etc/sysconfig/network-scripts/ifcfg-$networkDevice
-else
-    echo "GATEWAY=$gateway" >> /etc/sysconfig/network-scripts/ifcfg-$networkDevice
-fi
-#end if
-
-sed -i -e "s/\(^hosts:\).*/\1      files dns/" /etc/nsswitch.conf
+# sed -i -e "s/\(^hosts:\).*/\1      files dns/" /etc/nsswitch.conf
 
 #if $getVar('$isGraphical', '') != ''  
 if [ -d /lib/systemd/system ]
