@@ -9,7 +9,7 @@
     #end if
 #end if
 
-#set $operatingSystemVersion = int($os_version.replace($operatingSystem, '0'))
+#set $operatingSystemVersion = float($os_version.replace($operatingSystem, '0'))
 
 ## Networking stuff...
 
@@ -74,11 +74,17 @@ network --hostname=$hostname --bootproto=dhcp --device=$networkDevice
 # Reboot after installation
 reboot
 
+#if $operatingSystem == 'rhel' and $operatingSystemVersion < 6.0
+    #set $unencryptedPasswordOption = ''
+#else
+    #set $unencryptedPasswordOption = '--plaintext'
+#end if    
+
 # Root password
 #if $getVar('$encryptedRootPassword', '') != ''
 rootpw --iscrypted $encryptedRootPassword
 #else
-rootpw --plaintext $getVar('$rootPassword', 'cobbler')
+rootpw $unencryptedPasswordOption $getVar('$rootPassword', 'cobbler')
 #end if
 
 # SELinux configuration
