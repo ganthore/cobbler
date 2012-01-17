@@ -145,9 +145,12 @@ part / --fstype="$getVar('$rootPartition', 'ext3')" --size=$getVar('rootPartitio
 
 %pre
 $kickstart_start
+#if $operatingSystem == 'fedora' and $operatingSystemVersion > 15
+%end
+#end if
+
 %packages
 @core
-
 #if $getVar('$packages', '') != ''
 $packages.replace(',', '\\n')
 #end if
@@ -228,5 +231,11 @@ ln -s /home/root/ssh /root/.ssh
     echo "options loop max_loop=$maxLoop" >> /etc/modprobe.conf
 #end if
 
+#if $operatingSystem == 'fedora' and $operatingSystemVersion > 15.0
+cp /boot/grub2/grub.cfg /boot/grub
+/bin/sed -i -e "s/set default.*/set default=\"0\"/" /boot/grub/grub.cfg
+#end if
+
 $kickstart_done
+
 %end
