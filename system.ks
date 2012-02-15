@@ -102,7 +102,7 @@ timezone  $getVar('$timezone', 'America/New_York')
 install
 
 #if $getVar('$ignoredisk', '') != ''
-ignoredisk $ignoredisk
+ignoredisk --drives=$ignoredisk
 #end if
 
 # Disk partitioning information
@@ -116,7 +116,11 @@ clearpart --linux
 #if $operatingSystem == 'fedora' and $operatingSystemVersion > 15
 part biosboot --fstype=biosboot --size=$getVar('biosbootPartitionSize', '1')
 #end if
+#if $getVar('$bootDisk','') != ''
+part /boot --fstype="$getVar('$bootPartition', 'ext3')" --recommended --size=$getVar('bootPartitionSize', '250') --ondisk=$bootDisk
+#else
 part /boot --fstype="$getVar('$bootPartition', 'ext3')" --recommended --size=$getVar('bootPartitionSize', '250')
+#end if
 #if $getVar('$diskPartitions', '') 
 part $diskPartitions.replace(',', '\\npart ').replace('&&',' ')
 #end if
@@ -130,7 +134,7 @@ part $diskPartitions.replace(',', '\\npart ').replace('&&',' ')
 	#set $pv = 1
 
 	#for $anLvmDisk in $allLvmDisks
-part pv.$pv --grow --ondisk=$anLvmDisk
+part pv.$pv --grow --ondisk=$anLvmDisk --size=$getVar('lvmPartitionSize', '10')
 		#set $allPv = $allPv + ' pv.' + str($pv)
 		#set $pv += 1
 	#end for
@@ -139,8 +143,16 @@ volgroup VolGroup00 $allPv
 logvol swap --fstype="swap" --name=lv_swap --vgname=VolGroup00 --recommended
 logvol / --fstype="$getVar('$rootPartition', 'ext3')" --name=lv_root --vgname=VolGroup00 --size=$getVar('rootPartitionSize', '1024') --recommended --grow
 #else
+#if $getVar('$swapDisk','') != ''
+part swap --fstype="swap" --recommended --ondisk=$swapDisk
+#else
 part swap --fstype="swap" --recommended
+#end if
+#if $getVar('$rootDisk','') != ''
+part / --fstype="$getVar('$rootPartition', 'ext3')" --size=$getVar('rootPartitionSize', '1024') --recommended --grow --ondisk=$rootDisk
+#else
 part / --fstype="$getVar('$rootPartition', 'ext3')" --size=$getVar('rootPartitionSize', '1024') --recommended --grow
+#end if
 #end if
 
 %pre
@@ -234,6 +246,10 @@ ln -s /home/root/ssh /root/.ssh
 #if $operatingSystem == 'fedora' and $operatingSystemVersion > 15.0
 cp /boot/grub2/grub.cfg /boot/grub
 /bin/sed -i -e "s/set default.*/set default=\"0\"/" /boot/grub/grub.cfg
+#end if
+
+#if $getVar('$authconfig', '') != ''
+authconfig --update $authconfig
 #end if
 
 $kickstart_done
