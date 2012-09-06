@@ -1,7 +1,7 @@
 ## Simplifying the computation of operating system name
 ## and version...
 
-#if $getVar('$os_version', '') != ''
+#if $getVar('$operatingSystem', '') == '' and $getVar('$os_version', '') != ''
     #if $os_version.startswith('fedora')
         #set $operatingSystem = 'fedora'
     #else if $os_version.startswith('rhel')
@@ -9,7 +9,9 @@
     #end if
 #end if
 
+#if $getVar('$operatingSystemVersion', '') == ''
 #set $operatingSystemVersion = float($os_version.replace($operatingSystem, '0'))
+#end if
 
 ## Networking stuff...
 
@@ -110,7 +112,8 @@ ignoredisk --drives=$ignoredisk
 #if $getVar('$clearpart', '') != ''
 clearpart --$clearpart.replace('&&', ' --')
 #else
-clearpart --linux
+# clearpart --linux
+clearpart --all
 #end if
 
 #if $operatingSystem == 'fedora' and $operatingSystemVersion > 15
@@ -213,7 +216,7 @@ fi
 if [ -d /lib/systemd/system ]
 then
 	rm -rf /lib/systemd/system/default.target
-	ln -s /lib/systemd/system/multi-user.target /lib/systemd/system/default.target
+	ln -s /lib/systemd/system/multi-user.target /etc/systemd/system/default.target
 fi
 #end if
 
@@ -249,7 +252,7 @@ cp /boot/grub2/grub.cfg /boot/grub
 #end if
 
 #if $getVar('$authconfig', '') != ''
-authconfig --update $authconfig
+/usr/sbin/authconfig --update $authconfig
 #end if
 
 $kickstart_done
