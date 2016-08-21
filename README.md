@@ -70,3 +70,7 @@ Clone this git repo and:
 #### Yum 
 
 TBD
+
+### Default Use
+
+By default, the [kickstarts](https://github.com/FlossWare/cobbler/tree/master/kickstarts) and [snippets](https://github.com/FlossWare/cobbler/tree/master/snippets) can be used upon deployment with no additions to ```ksmeta```.  The only caveat is your installed bare metal or VMs will use the root password of ```cobbler```.
