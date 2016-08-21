@@ -21,10 +21,11 @@ All defined [kickstarts](https://github.com/FlossWare/cobbler/tree/master/kickst
 As mentioned above, all [kickstarts](https://github.com/FlossWare/cobbler/tree/master/kickstarts) call a corresponding [snippet](https://github.com/FlossWare/cobbler/tree/master/snippets).  The job of these snippets is to set variables (where appropriate) and coordinate assembly of the kickstart result as a whole.  There are, however, some that contain common functionality and reused (meaning they do not have a corresponding [kickstart](https://github.com/FlossWare/cobbler/tree/master/kickstarts) that calls them).
 
 #### Common Kickstart Counterparts
-* [common_kickstart](https://github.com/FlossWare/cobbler/blob/master/snippets/common_kickstart)
-* [atomic_kickstart](https://github.com/FlossWare/cobbler/blob/master/snippets/atomic_kickstart)
+* [common_kickstart](https://github.com/FlossWare/cobbler/blob/master/snippets/common_kickstart):  Computes the operating system version and calls out to the [common module](https://github.com/FlossWare/cobbler/blob/master/snippets/modules/common) to build "common" kickstart options.
+* [atomic_kickstart](https://github.com/FlossWare/cobbler/blob/master/snippets/atomic_kickstart):  The "common" snippet all Atomic kickstarts use - for example, ensure ```---erroronfail``` for the [post](https://github.com/FlossWare/cobbler/blob/master/snippets/sections/post] section.
 
 #### Actual Kickstart Counterparts
+These [snippets]((https://github.com/FlossWare/cobbler/tree/master/snippets)) represent their actual [kickstart](https://github.com/FlossWare/cobbler/tree/master/kickstarts) counterparts.  The names correspond to the type of distro you are installing:
 * [centos_atomic_kickstart](https://github.com/FlossWare/cobbler/blob/master/snippets/centos_atomic_kickstart)
 * [fedora_atomic_kickstart](https://github.com/FlossWare/cobbler/blob/master/snippets/fedora_atomic_kickstart)
 * [rhel_atomic_kickstart](https://github.com/FlossWare/cobbler/blob/master/snippets/rhel_atomic_kickstart)
