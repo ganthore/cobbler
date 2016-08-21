@@ -83,3 +83,7 @@ By default, the [kickstarts](https://github.com/FlossWare/cobbler/tree/master/ki
 ### Layout LVM partitions
 
 Simply provide a space or comma separated list of the disks to use in the partition as a ```ksmeta``` variable ```lvmDisks```.  As an example assume you wish to use ```sda```, ```sdc``` and ```sdd```:   ```ksmeta='lvmDisks="sda,sdc,sdd"'```
+
+## Examples
+
+For more concrete examples, please see [Flossy's Cobbler Scripts](https://github.com/sfloess/scripts/blob/master/bash/cobbler.sh) for his home network. 
