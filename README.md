@@ -74,3 +74,12 @@ TBD
 ### Default Use
 
 By default, the [kickstarts](https://github.com/FlossWare/cobbler/tree/master/kickstarts) and [snippets](https://github.com/FlossWare/cobbler/tree/master/snippets) can be used upon deployment with no additions to ```ksmeta```.  The only caveat is your installed bare metal or VMs will use the root password of ```cobbler```.
+
+### Define the Root Password
+
+* Using ```plaintext```:  ```ksmeta='rootpw="--plaintext mypassword"'```
+* Using ```encrypted```:  ```ksmeta='rootpw="--iscrypted laskdjfaklkmcLKMCSDNKJANDF"'```
+
+### Layout LVM partitions
+
+Simply provide a space or comma separated list of the disks to use in the partition as a ```ksmeta``` variable ```lvmDisks```.  As an example assume you wish to use ```sda```, ```sdc``` and ```sdd```:   ```ksmeta='lvmDisks="sda,sdc,sdd"'```
