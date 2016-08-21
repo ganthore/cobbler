@@ -63,7 +63,7 @@ lang="en_US"
 Clone this git repo and:
 * copy the contents of [kickstarts](https://github.com/FlossWare/cobbler/tree/master/kickstarts) to ```/var/lib/cobbler/kickstarts```.
 * create a ```/var/lib/cobbler/snippets/flossware``` directory.
-* copy the contents of [snippets](https://github.com/FlossWare/cobbler/tree/master/snippets) to ````/var/lib/cobbler/snippets/flossware```.
+* copy the contents of [snippets](https://github.com/FlossWare/cobbler/tree/master/snippets) to ```/var/lib/cobbler/snippets/flossware```.
 
 ### Yum Install
 
