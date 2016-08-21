@@ -65,3 +65,6 @@ Clone this git repo and:
 * create a ```/var/lib/cobbler/snippets/flossware``` directory.
 * copy the [snippets](https://github.com/FlossWare/cobbler/tree/master/snippets) to ````/var/lib/cobbler/snippets/flossware```.
 
+### Yum Install
+
+TBD
