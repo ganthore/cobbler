@@ -62,6 +62,6 @@ lang="en_US"
 
 Clone this git repo and:
 * copy the [kickstart](https://github.com/FlossWare/cobbler/tree/master/kickstarts) to ```/var/lib/cobbler/kickstarts```.
-* create a ````/var/lib/cobbler/snippets/flossware``` directory.
+* create a ```/var/lib/cobbler/snippets/flossware``` directory.
 * copy the [snippets](https://github.com/FlossWare/cobbler/tree/master/snippets) to ````/var/lib/cobbler/snippets/flossware```.
 
