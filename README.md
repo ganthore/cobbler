@@ -18,15 +18,18 @@ All defined [kickstarts](https://github.com/FlossWare/cobbler/tree/master/kickst
 
 ### Kickstart Counterparts
 
-As mentioned above, all [kickstarts](https://github.com/FlossWare/cobbler/tree/master/kickstarts) call a corresponding [snippet](https://github.com/FlossWare/cobbler/tree/master/snippets).  The job of these snippets is to set variables (where appropriate) and coordinate assembly of the kickstart result as a whole.  There are, however, some that contain common functionality and reused (meaning they do not have a corresponding [kickstart](https://github.com/FlossWare/cobbler/tree/master/kickstarts) that calls them).
-
-#### Common Kickstart Counterparts
-* [common_kickstart](https://github.com/FlossWare/cobbler/blob/master/snippets/common_kickstart):  Computes the operating system version and calls out to the [common module](https://github.com/FlossWare/cobbler/blob/master/snippets/modules/common) to build "common" kickstart options.
-* [atomic_kickstart](https://github.com/FlossWare/cobbler/blob/master/snippets/atomic_kickstart):  The "common" snippet all Atomic kickstarts use - for example, ensure ```---erroronfail``` for the [post](https://github.com/FlossWare/cobbler/blob/master/snippets/sections/post) section.
-
-#### Actual Kickstart Counterparts
-These [snippets](https://github.com/FlossWare/cobbler/tree/master/snippets) represent their actual [kickstart](https://github.com/FlossWare/cobbler/tree/master/kickstarts) counterparts.  The names correspond to the type of distro you are installing:
+As mentioned above, all [kickstarts](https://github.com/FlossWare/cobbler/tree/master/kickstarts) call a corresponding [snippet](https://github.com/FlossWare/cobbler/tree/master/snippets).  The job of these snippets is to set variables (where appropriate) and coordinate assembly of the [kickstart](http://cobbler.github.io/manuals/2.6.0/3/5_-_Kickstart_Templating.html) result as a whole.  The names correspond to the type of distro you are installing:
 * [centos_atomic_kickstart](https://github.com/FlossWare/cobbler/blob/master/snippets/centos_atomic_kickstart)
 * [fedora_atomic_kickstart](https://github.com/FlossWare/cobbler/blob/master/snippets/fedora_atomic_kickstart)
 * [rhel_atomic_kickstart](https://github.com/FlossWare/cobbler/blob/master/snippets/rhel_atomic_kickstart)
 * [standard_kickstart](https://github.com/FlossWare/cobbler/blob/master/snippets/standard_kickstart)
+
+### Options
+
+The [options snippets](https://github.com/FlossWare/cobbler/tree/master/snippets/options) represent an [option](https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Installation_Guide/sect-kickstart-syntax.html#sect-kickstart-commands) that one may find in a kickstart file - for example [autopart](https://github.com/FlossWare/cobbler/blob/master/snippets/options/autopart) for automatically creating partitions.
+
+Should an option afford parameters, simply denoting the name of the option in your ```ksmeta``` as the name with the value being what should end up in the resultant [kickstart](http://cobbler.github.io/manuals/2.6.0/3/5_-_Kickstart_Templating.html).  As an example, let's assume you wsh to set the language to ```en_US``` in your kickstart:
+
+```bash
+ksmeta='lang="en_US"'
+```
