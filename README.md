@@ -55,3 +55,13 @@ lang="en_US"
 [Section snippets](https://github.com/FlossWare/cobbler/tree/master/snippets/sections) correspond to sections in kickstarts like [package](https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Installation_Guide/sect-kickstart-syntax.html#sect-kickstart-packages), [pre](https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Installation_Guide/sect-kickstart-syntax.html#sect-kickstart-preinstall), [post](https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Installation_Guide/sect-kickstart-syntax.html#sect-kickstart-postinstall) and [add ons](https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Installation_Guide/sect-kickstart-syntax.html#sect-kickstart-addon).  To define values on [sections](https://github.com/FlossWare/cobbler/tree/master/snippets/sections):
 * For the section itself, simply defined a ```ksmeta``` variable whose name represents the section and whose value is what to put on the section.  As an example:   ```ksmeta=post="--errorfail"```
 * To provide a body, denote a [snippet](http://cobbler.github.io/manuals/2.6.0/3/6_-_Snippets.html) in your ```ksmeta``` variables that is named ```[section]_body```.  As an example:   ```ksmeta=post_body="flossware/sections/post_body/centos_atomic"```
+
+## How To
+
+### Manually Installing
+
+Clone this git repo and:
+* copy the [kickstart](https://github.com/FlossWare/cobbler/tree/master/kickstarts) to ```/var/lib/cobbler/kickstarts```.
+* create a ````/var/lib/cobbler/snippets/flossware``` directory.
+* copy the [snippets](https://github.com/FlossWare/cobbler/tree/master/snippets) to ````/var/lib/cobbler/snippets/flossware```.
+
